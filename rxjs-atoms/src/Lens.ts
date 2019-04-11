@@ -16,12 +16,12 @@ export class ReadLens<O, P> {
     return this._get(o);
   }
 
-  then<B>(getter: Getter<P, B>): ReadLens<O, B> {
+  map<B>(getter: Getter<P, B>): ReadLens<O, B> {
     return this.compose(new ReadLens(getter));
   }
 
   prop<K extends keyof P>(key: K): ReadLens<O, P[K]> {
-    return this.then(x => x[key]);
+    return this.map(x => x[key]);
   }
 }
 
@@ -63,4 +63,8 @@ export function map<A, B>(f: Getter<A, B>) {
 
 export function id<O>(): Lens<O, O> {
   return new Lens(o => o, (_, o) => o);
+}
+
+export function iso<A, B>(from: (x: A) => B, to: (x: B) => A): Lens<A, B> {
+  return new Lens(from, (_, x) => to(x));
 }

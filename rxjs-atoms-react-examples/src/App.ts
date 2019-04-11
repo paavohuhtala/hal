@@ -1,4 +1,4 @@
-import { Atom, L } from "rxjs-atoms";
+import { Atom, L, AtomValue } from "rxjs-atoms";
 import { map, tap } from "rxjs/operators";
 
 const state = new Atom({
@@ -12,8 +12,10 @@ state.subscribe({
   next: x => console.log("State changed: ", x)
 });
 
+const stateL = L.id<AtomValue<typeof state>>();
+const nameA = state.view(stateL.prop("author").prop("name"));
+
 const authorA = state.view(L.prop("author"));
-const nameA = authorA.view(L.prop("name"));
 const juiceHoursA = authorA.view(L.prop("juiceHours"));
 
 nameA.subscribe({
