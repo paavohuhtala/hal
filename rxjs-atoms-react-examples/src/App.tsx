@@ -1,4 +1,4 @@
-import { Atom, L, AtomValue } from "rxjs-atoms";
+import { Atom, L, AtomValue, AbstractReadAtom } from "rxjs-atoms";
 import { map, tap } from "rxjs/operators";
 
 const state = new Atom({
@@ -42,13 +42,20 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { useAtom } from "rxjs-atoms-react";
 
+const HourIndicator: React.SFC<{ hours: AbstractReadAtom<number> }> = ({
+  hours
+}) => {
+  const hoursValue = useAtom(hours);
+  return <p>{hoursValue}</p>;
+};
+
 const TestApp: React.SFC = () => {
-  const hours = useAtom(juiceHoursA);
   const doWork = React.useCallback(() => juiceHoursA.modify(x => x + 1), []);
+  const tenXHours = juiceHoursA.view(L.iso(x => x * 10, x => x / 10));
 
   return (
     <div>
-      <p>Total Juice hours: {hours}</p>
+      <HourIndicator hours={tenXHours} />
       <button onClick={doWork}>More jäsä</button>
     </div>
   );
