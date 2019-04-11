@@ -23,12 +23,12 @@ type LensAtomWith<
     : never
   : never;
 
-interface AbstractReadAtom<T> extends Observable<T> {
+export interface AbstractReadAtom<T> extends Observable<T> {
   get(): T;
   view<B>(getter: ReadLens<T, B>): AbstractReadAtom<B>;
 }
 
-interface AbstractAtom<T> extends AbstractReadAtom<T> {
+export interface AbstractAtom<T> extends AbstractReadAtom<T> {
   get(): T;
   set(x: T): void;
   modify(f: (oldValue: T) => T): void;
