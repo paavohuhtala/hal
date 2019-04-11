@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.json",
+  "references": [
+    { "path": "../rxjs-atoms" },
+    { "path": "../rxjs-atoms-react" }
+  ],
+  "compilerOptions": { "rootDir": "./src", "outDir": "./src" }
+}

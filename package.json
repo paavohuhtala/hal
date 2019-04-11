@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "workspaces": [
+    "rxjs-atoms",
+    "rxjs-atoms-react",
+    "rxjs-atoms-react-examples"
+  ]
+}
