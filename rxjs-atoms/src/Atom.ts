@@ -49,21 +49,13 @@ export class Atom<T> extends Observable<T> implements AbstractAtom<T> {
     this.__value = value;
   }
 
-  get value() {
+  get() {
     return this.__value;
   }
 
-  set value(value) {
+  set(value: T) {
     this.__value = value;
     this.notify(value);
-  }
-
-  get() {
-    return this.value;
-  }
-
-  set(value: T) {
-    this.value = value;
   }
 
   modify(f: (oldValue: T) => T) {
