@@ -4,5 +4,9 @@
     { "path": "../rxjs-atoms" },
     { "path": "../rxjs-atoms-react" }
   ],
-  "compilerOptions": { "rootDir": "./src", "outDir": "./src", "jsx": "react" }
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./src",
+    "jsx": "react"
+  }
 }

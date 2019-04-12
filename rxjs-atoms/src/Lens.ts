@@ -1,3 +1,5 @@
+import { U } from ".";
+
 type Getter<O, P> = (obj: O) => P;
 type Setter<O, P> = (obj: O, x: P) => O;
 
@@ -9,7 +11,12 @@ export class ReadLens<O, P> {
   }
 
   compose<B>(lens: ReadLens<P, B>): ReadLens<O, B> {
-    return new ReadLens(x => lens._get(this._get(x)));
+    return new ReadLens(
+      U.compose(
+        this._get,
+        lens._get
+      )
+    );
   }
 
   get(o: O): P {
@@ -35,7 +42,10 @@ export class Lens<O, P> extends ReadLens<O, P> {
 
   compose<B>(lens: Lens<P, B>): Lens<O, B> {
     return new Lens(
-      o => lens._get(this._get(o)),
+      U.compose(
+        this._get,
+        lens._get
+      ),
       (o, x) => this._set(o, lens._set(this._get(o), x))
     );
   }

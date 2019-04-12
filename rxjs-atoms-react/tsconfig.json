@@ -1,8 +1,10 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "lib": ["es2017"],
     "rootDir": "./src",
     "outDir": "./dist",
+    "jsx": "react",
     "declaration": true,
     "composite": true
   }

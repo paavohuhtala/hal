@@ -81,8 +81,8 @@ export class Atom<T> extends Observable<T> implements AbstractAtom<T> {
 export class LensedAtom<T> extends Observable<T> implements AbstractAtom<T> {
   private subscribers: Array<(x: T) => void> = [];
   private inner: AbstractAtom<any>;
-  private __lens: Lens<any, T>;
-  private __currentValue: T | undefined;
+  private lens: Lens<any, T>;
+  private currentValue: T | undefined;
 
   private constructor(atom: AbstractAtom<any>, lens: Lens<any, T>) {
     super(emitter => {
@@ -90,42 +90,39 @@ export class LensedAtom<T> extends Observable<T> implements AbstractAtom<T> {
     });
 
     this.inner = atom;
-    this.__lens = lens;
+    this.lens = lens;
 
     this.inner.subscribe({
       next: x => {
         if (this.subscribers.length === 0) return;
-        const newValue = this.__lens.get(x);
+        const newValue = this.lens.get(x);
 
-        if (
-          this.__currentValue === undefined ||
-          this.__currentValue !== newValue
-        ) {
-          this.__currentValue = newValue;
-          this.subscribers.forEach(f => f(this.__currentValue!));
+        if (this.currentValue === undefined || this.currentValue !== newValue) {
+          this.currentValue = newValue;
+          this.subscribers.forEach(f => f(this.currentValue!));
         }
       }
     });
   }
 
   private forceGet() {
-    return this.__lens.get(this.inner.get());
+    return this.lens.get(this.inner.get());
   }
 
   get() {
-    if (this.__currentValue === undefined) {
-      this.__currentValue = this.forceGet();
+    if (this.currentValue === undefined) {
+      this.currentValue = this.forceGet();
     }
 
-    return this.__currentValue;
+    return this.currentValue;
   }
 
   set(value: T) {
-    this.inner.modify(x => this.__lens.set(x, value));
+    this.inner.modify(x => this.lens.set(x, value));
   }
 
   modify(f: (oldValue: T) => T) {
-    this.inner.modify(x => this.__lens.modify(x, f));
+    this.inner.modify(x => this.lens.modify(x, f));
   }
 
   view<B>(lens: Lens<T, B>): AbstractAtom<B>;
@@ -147,8 +144,8 @@ export class LensedReadAtom<T> extends Observable<T>
   implements AbstractReadAtom<T> {
   private subscribers: Array<(x: T) => void> = [];
   private inner: AbstractReadAtom<any>;
-  private __lens: ReadLens<any, T>;
-  private __currentValue: T | undefined;
+  private lens: ReadLens<any, T>;
+  private currentValue: T | undefined;
 
   private constructor(atom: AbstractReadAtom<any>, lens: ReadLens<any, T>) {
     super(emitter => {
@@ -156,38 +153,35 @@ export class LensedReadAtom<T> extends Observable<T>
     });
 
     this.inner = atom;
-    this.__lens = lens;
+    this.lens = lens;
 
     this.inner.subscribe({
       next: x => {
         if (this.subscribers.length === 0) return;
-        const newValue = this.__lens.get(x);
+        const newValue = this.lens.get(x);
 
-        if (
-          this.__currentValue === undefined ||
-          this.__currentValue !== newValue
-        ) {
-          this.__currentValue = newValue;
-          this.subscribers.forEach(f => f(this.__currentValue!));
+        if (this.currentValue === undefined || this.currentValue !== newValue) {
+          this.currentValue = newValue;
+          this.subscribers.forEach(f => f(this.currentValue!));
         }
       }
     });
   }
 
   private forceGet() {
-    return this.__lens.get(this.inner.get());
+    return this.lens.get(this.inner.get());
   }
 
   get() {
-    if (this.__currentValue === undefined) {
-      this.__currentValue = this.forceGet();
+    if (this.currentValue === undefined) {
+      this.currentValue = this.forceGet();
     }
 
-    return this.__currentValue;
+    return this.currentValue;
   }
 
   view<B>(getter: ReadLens<T, B>): AbstractReadAtom<B> {
-    return this.inner.view(this.__lens.compose(getter));
+    return this.inner.view(this.lens.compose(getter));
   }
 
   static create<A, B>(

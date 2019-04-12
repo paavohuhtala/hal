@@ -1,5 +1,8 @@
-import { Atom, L, AtomValue, AbstractReadAtom } from "rxjs-atoms";
-import { map, tap } from "rxjs/operators";
+import React from "react";
+import ReactDOM from "react-dom";
+
+import { Atom, L, AtomValue, AbstractReadAtom, Molecule } from "rxjs-atoms";
+import { useAtom } from "rxjs-atoms-react";
 
 const state = new Atom({
   author: {
@@ -18,29 +21,20 @@ const nameA = state.view(stateL.prop("author").prop("name"));
 const authorA = state.view(L.prop("author"));
 const juiceHoursA = authorA.view(L.prop("juiceHours"));
 
+const hmmm = new Molecule({
+  molecularName: authorA.view(L.prop("name")),
+  molecularHours: authorA.view(L.prop("juiceHours"))
+});
+
+hmmm.subscribe(x => console.log("molecule changed :D", x));
+
 nameA.subscribe({
   next: x => console.log("Name changed :D", x)
 });
 
-nameA.view(L.prop("length")).subscribe({
-  next: x => console.log("Length of name changed :D", x)
-});
-
-juiceHoursA
-  .pipe(
-    tap(x => console.log(`Hours before map: ${x}`)),
-    map(x => x * 2),
-    tap(x => console.log(`Hours after map: ${x}`))
-  )
-  .subscribe({ next: console.log });
-
 juiceHoursA.modify(x => (x += 4));
 
 nameA.set("Pavel");
-
-import React from "react";
-import ReactDOM from "react-dom";
-import { useAtom } from "rxjs-atoms-react";
 
 const HourIndicator: React.SFC<{ hours: AbstractReadAtom<number> }> = ({
   hours
