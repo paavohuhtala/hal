@@ -1,8 +1,7 @@
 import { Observable, Subscriber } from "rxjs";
-import { Lens, ReadLens } from "./Lens";
+import { Lens, ReadLens, EitherLens } from "./Lens";
 
 type EitherAtom<T> = AbstractReadAtom<T> | AbstractAtom<T>;
-type EitherLens<O, L> = Lens<O, L> | ReadLens<O, L>;
 
 export type AtomValue<A extends EitherAtom<any>> = A extends EitherAtom<infer T>
   ? T

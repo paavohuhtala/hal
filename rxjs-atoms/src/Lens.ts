@@ -3,6 +3,8 @@ import { U } from ".";
 type Getter<O, P> = (obj: O) => P;
 type Setter<O, P> = (obj: O, x: P) => O;
 
+export type EitherLens<O, L> = Lens<O, L> | ReadLens<O, L>;
+
 export class ReadLens<O, P> {
   _get: Getter<O, P>;
 
@@ -40,18 +42,21 @@ export class Lens<O, P> extends ReadLens<O, P> {
     this._set = set;
   }
 
-  compose<B>(lens: Lens<P, B>): Lens<O, B> {
-    return new Lens(
-      U.compose(
-        this._get,
-        lens._get
-      ),
-      (o, x) => this._set(o, lens._set(this._get(o), x))
+  compose<B>(lens: Lens<P, B>): Lens<O, B>;
+  compose<B>(lens: ReadLens<P, B>): ReadLens<O, B>;
+  compose<B>(lens: EitherLens<P, B>): EitherLens<O, B> {
+    const getter = U.compose(
+      this._get,
+      lens._get
     );
-  }
 
-  prop<K extends keyof P>(key: K): Lens<O, P[K]> {
-    return this.compose(prop<any, K>(key));
+    if (lens instanceof Lens) {
+      return new Lens(getter, (o, x) =>
+        this._set(o, lens._set(this._get(o), x))
+      );
+    } else {
+      return new ReadLens(getter);
+    }
   }
 
   set(o: O, x: P): O {
@@ -60,6 +65,14 @@ export class Lens<O, P> extends ReadLens<O, P> {
 
   modify(o: O, f: (x: P) => P): O {
     return this._set(o, f(this._get(o)));
+  }
+
+  prop<K extends keyof P>(key: K): Lens<O, P[K]> {
+    return this.compose(prop<P, K>(key));
+  }
+
+  asRead(): ReadLens<O, P> {
+    return this.compose(new ReadLens(U.id));
   }
 }
 
@@ -77,4 +90,17 @@ export function id<O>(): Lens<O, O> {
 
 export function iso<A, B>(from: (x: A) => B, to: (x: B) => A): Lens<A, B> {
   return new Lens(from, (_, x) => to(x));
+}
+
+export function nth<A extends any[], I extends keyof A = number>(
+  index: I
+): Lens<A, A[I]> {
+  return new Lens(
+    a => a[index],
+    (a, x) => {
+      const arr = [...a];
+      arr[index as any] = x;
+      return arr as A;
+    }
+  );
 }
