@@ -36,16 +36,20 @@ juiceHoursA.modify(x => (x += 4));
 
 nameA.set("Pavel");
 
-const HourIndicator: React.SFC<{ hours: AbstractReadAtom<number> }> = ({
-  hours
-}) => {
+const HourIndicator: React.SFC<{
+  hours: AbstractReadAtom<number>;
+}> = React.memo(({ hours }) => {
   const hoursValue = useAtom(hours);
   return <p>{hoursValue}</p>;
-};
+});
 
 const TestApp: React.SFC = () => {
-  const doWork = React.useCallback(() => juiceHoursA.modify(x => x + 1), []);
-  const tenXHours = juiceHoursA.view(L.iso(x => x * 10, x => x / 10));
+  const doWork = React.useCallback(() => juiceHoursA.modify(x => x + 1), [
+    juiceHoursA
+  ]);
+  const tenXHours = React.useMemo(() => juiceHoursA.view(L.map(x => x * 10)), [
+    juiceHoursA
+  ]);
 
   return (
     <div>
