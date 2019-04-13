@@ -1,7 +1,7 @@
 import { AbstractReadAtom, AtomValue } from ".";
 import { combineLatest, BehaviorSubject } from "rxjs";
 import { map } from "rxjs/operators";
-import { ReadLens } from "./Lens";
+import { ReadLens, prop } from "./Lens";
 import { LensedReadAtom } from "./Atom";
 
 type CombineAtoms<O extends Record<any, AbstractReadAtom<any>>> = {
@@ -34,5 +34,9 @@ export class Molecule<O extends Record<any, AbstractReadAtom<any>>>
 
   view<B>(getter: ReadLens<CombineAtoms<O>, B>): AbstractReadAtom<B> {
     return LensedReadAtom.create(this, getter);
+  }
+
+  prop<P extends keyof O>(key: P): AbstractReadAtom<CombineAtoms<O>[P]> {
+    return this.view(prop(key));
   }
 }

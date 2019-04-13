@@ -15,8 +15,7 @@ state.subscribe({
   next: x => console.log("State changed: ", x)
 });
 
-const stateL = L.id<AtomValue<typeof state>>();
-const nameA = state.view(stateL.prop("author").prop("name"));
+const nameA = state.prop("author").prop("name");
 
 const authorA = state.view(L.prop("author"));
 const juiceHoursA = authorA.view(L.prop("juiceHours"));

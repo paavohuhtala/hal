@@ -1,5 +1,5 @@
 import { Observable, BehaviorSubject } from "rxjs";
-import { Lens, ReadLens, EitherLens } from "./Lens";
+import { Lens, ReadLens, EitherLens, prop } from "./Lens";
 import { distinctUntilChanged, map } from "rxjs/operators";
 
 type EitherAtom<T> = AbstractReadAtom<T> | AbstractAtom<T>;
@@ -11,6 +11,7 @@ export type AtomValue<A extends EitherAtom<any>> = A extends EitherAtom<infer T>
 export interface AbstractReadAtom<T> extends Observable<T> {
   get(): T;
   view<B>(getter: ReadLens<T, B>): AbstractReadAtom<B>;
+  prop<P extends keyof T>(key: P): AbstractReadAtom<T[P]>;
 }
 
 export interface AbstractAtom<T> extends AbstractReadAtom<T> {
@@ -20,6 +21,7 @@ export interface AbstractAtom<T> extends AbstractReadAtom<T> {
 
   view<B>(lens: Lens<T, B>): AbstractAtom<B>;
   view<B>(getter: ReadLens<T, B>): AbstractReadAtom<B>;
+  prop<P extends keyof T>(key: P): AbstractAtom<T[P]>;
 }
 
 export class Atom<T> extends BehaviorSubject<T> implements AbstractAtom<T> {
@@ -47,6 +49,10 @@ export class Atom<T> extends BehaviorSubject<T> implements AbstractAtom<T> {
     } else {
       return LensedReadAtom.create(this, lens);
     }
+  }
+
+  prop<P extends keyof T>(key: P): AbstractAtom<T[P]> {
+    return this.view(prop(key));
   }
 }
 
@@ -89,6 +95,10 @@ export class LensedAtom<T> extends BehaviorSubject<T>
     }
   }
 
+  prop<P extends keyof T>(key: P): AbstractAtom<T[P]> {
+    return this.view(prop(key));
+  }
+
   static create<A, B>(atom: AbstractAtom<A>, lens: Lens<A, B>): LensedAtom<B> {
     return new LensedAtom(atom, lens);
   }
@@ -117,6 +127,10 @@ export class LensedReadAtom<T> extends BehaviorSubject<T>
 
   view<B>(getter: ReadLens<T, B>): AbstractReadAtom<B> {
     return this.inner.view(this.lens.compose(getter));
+  }
+
+  prop<P extends keyof T>(key: P): AbstractReadAtom<T[P]> {
+    return this.view(prop(key));
   }
 
   static create<A, B>(
